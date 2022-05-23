@@ -1,0 +1,36 @@
+# CSE 490W Final Project Log:
+
+## Purpose
+
+To log what I'm doing as I do it. The goal is to make the final report easier.
+
+## The log
+
+Before: Much stressing about project. Bouncing between FM audio streaming, ADS-B
+decoding, and NOAA satellite decoding.
+
+### 5/12:
+
+Working on recording audio from SDRSharp and then figuring out how to work
+it in Python.
+
+Already wrote an example for simple audio files. I/Q recordings use up MUCH disk
+space. 
+
+### 5/15:
+
+Working on extracting data from SDRSharp IQ files. Conclusion: samples are
+signed (makes sense as this matches the AF files). Also discovered that
+sounddevice doesn't even let you play arrays where the dtype is unsigned lol.
+
+Note: while graphing IQ recording from SDRSharp there's a noticeably MASSIVE
+spike at the center. Based on internet searches this is why you'd want to check
+the "correct IQ" box in SDRSharp.
+
+### 5/16
+
+Yessss, finally got FM decoding out of SDRSharp recording working :letsgooo:.
+
+### 5/22
+
+Oh boy apparently I took a week long break??

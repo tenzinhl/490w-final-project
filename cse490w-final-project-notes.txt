@@ -1,0 +1,43 @@
+CSE 490W Final Project notes:
+
+Book on decoding ADS-B. Note: use introduction for physical layer
+  https://mode-s.org/decode/index.html
+
+^Guy's github also has a library for this
+
+rtl-sdr guide on ADS-B decoding: https://www.rtl-sdr.com/adsb-aircraft-radar-with-rtl-sdr/
+
+Repo for decoding NRSC-5 digital radio stations:
+https://github.com/theori-io/nrsc5
+
+Sort of provides hints as to how to get stereo FM?
+https://www.radioworld.com/columns-and-views/roots-of-radio/how-fm-stereo-came-to-life
+
+https://en.wikipedia.org/wiki/Pilot_signal#FM_Radio
+
+Refresher on FM principles:
+https://man.fas.org/dod-101/navy/docs/es310/FM.htm#:~:text=FM%20radio%20uses%20frequency%20modulation,frequency%20to%2015%20kHz%20(cf.
+https://www.ni.com/en-us/innovations/white-papers/06/frequency-modulation--fm-.html
+
+PySDR (well written):
+https://pysdr.org/
+
+Streaming spectrogram
+https://stackoverflow.com/questions/11874767/how-do-i-plot-in-real-time-in-a-while-loop-using-matplotlib
+
+I think at this point my goals are:
+- Stream FM audio using my own demodulation code
+- Stream the spectrogram
+- STRETCH: add a UI
+
+NOAA decoding implementation:
+https://medium.com/swlh/decoding-noaa-satellite-images-using-50-lines-of-code-3c5d1d0a08da
+
+How to read SDRSharp recordings:
+https://gist.github.com/asgaut/0b31455686ba87ffdac3d97028bec863
+
+ADS-B Berkeley decoding:
+https://inst.eecs.berkeley.edu/~ee123/sp16/lab/lab2/lab2-TimeDomain-SDR.html
+
+Good reference on ADS-B decoding (dump1090 open source):
+https://github.com/antirez/dump1090/blob/master/dump1090.c
