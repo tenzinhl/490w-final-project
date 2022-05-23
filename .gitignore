@@ -3,3 +3,5 @@ __pycache__
 
 # Ignore recordings as they are annoyingly large for git repo
 recordings
+
+output

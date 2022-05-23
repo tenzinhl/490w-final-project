@@ -34,3 +34,29 @@ Yessss, finally got FM decoding out of SDRSharp recording working :letsgooo:.
 ### 5/22
 
 Oh boy apparently I took a week long break??
+Probably just forgot to log for a while.
+
+So something I want to figure out is whether changing name of file prevents
+SDRSharp playback. I think it might :/
+
+Okay nvm you can do it. It's just that it derives the center frequency etc. from
+the name so if you rename it'll break that.
+
+Add spectrogram graphing utility. Open wav file.
+
+## Monday 5/23
+
+Writing to WAV file...
+
+YESSS GOT playback working in SDRSharp!!
+
+Added squelching to fmdemod
+
+Ate my own dogfood
+
+Alright next thing is trying some IQ correction.
+
+I should plan to add a "recording" class/struct
+which has the necessary stuff for finding the
+file and doing appropriate playback (instead
+of multiple hardcoded constants).

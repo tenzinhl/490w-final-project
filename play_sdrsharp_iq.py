@@ -8,13 +8,21 @@ import matplotlib.pyplot as plt
 import sounddevice as sd
 from tenutils import *
 
-wavinput = wave.open("recordings/kuow/SDRSharp_20220513_042737Z_95140881Hz_IQ.wav", mode='rb')
+KUOW_IQ_RECORDING = "recordings/kuow/SDRSharp_20220513_042737Z_95140881Hz_IQ.wav"
+KUOW_IQ_RECORDING_FC = 95140881
+KUOW_IQ_RECORDING_OFFSET = -240e3
+
+MY_TEST_WAV = "output/test.wav"
+MY_TEST_WAV_FC = 0
+MY_TEST_WAV_OFFSET = 300e3
+
+wavinput = wave.open(MY_TEST_WAV, mode='rb')
 
 MAX_FRAMES_TO_READ = 1_000_000
 
 num_samples = min(wavinput.getnframes(), MAX_FRAMES_TO_READ)
 fs = wavinput.getframerate()
-fc = 95140881 # Hard coded for now, can be obtained from file name
+fc = MY_TEST_WAV_FC # Hard coded for now, can be obtained from file name
 nyquist = fs / 2
 sampwidth = wavinput.getsampwidth()
 # I'm guessing there will be two channels which are going to be in-phase and quadrature?
@@ -59,7 +67,7 @@ freqs = np.linspace(fc - nyquist, fc + nyquist, num_samples)
 # Cutoff freq of filter
 fcutoff = 100_000
 # Hard coded. Need to shift depending on your desired frequency from the center
-foffset = -240e3
+foffset = MY_TEST_WAV_OFFSET
 mask = bandpassmask(num_samples, fs, fcutoff, foffset=foffset)
 assert len(mask) == num_samples
 

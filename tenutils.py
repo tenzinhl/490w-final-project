@@ -8,6 +8,7 @@ from cv2 import normalize
 import numpy as np
 from math import fmod
 import math
+import matplotlib.pyplot as plt
 
 # TODO: many of the type hints which ask for np.array's long-term should be switched
 # to use np.typing.ArrayLike. Given that I currently don't enable type checking and
@@ -89,7 +90,7 @@ def clean_dtheta(theta: float, maxdelta: float = np.pi) -> float:
     return normval
 
 
-def fmdemod(samples: np.array, clean=True) -> np.array:
+def fmdemod(samples: np.array, clean=True, squelch=True) -> np.array:
     """
     Get the FM demodulated array of samples given an array of complex samples.
 
@@ -97,7 +98,11 @@ def fmdemod(samples: np.array, clean=True) -> np.array:
     :param clean: whether or not to perform cleaning on the demodulated signal.
         If false, most signals will have large jumps where the angle crosses the
         0-line and jumps from 0 to 2pi.
-    :return: a numpy array with length `len(samples) - 1` that has been FM demodulated
+    :param squelch: squelch low power signals if true. "Low power" is determined to
+        be anything below 1/5 the average amplitude of the signal.
+    :return: a numpy array with length `len(samples)` that has been FM demodulated.
+        The first value in the array is always 0 (as we cannot get a derivative at the
+        first point)
     """
     if (len(samples) < 2):
         raise ValueError("samples must have at least 2 values")
@@ -107,11 +112,17 @@ def fmdemod(samples: np.array, clean=True) -> np.array:
 
     # Take discrete derivative using neat little convolution trick
     dtheta = np.convolve(thetas, [1, -1], mode='same')
-    # We slice off the first element as that doesn't make sense as a derivative
-    dtheta = dtheta[1:]
+    # We set first element to 0 as that doesn't make sense as a derivative
+    dtheta[0] = 0
 
     if clean:
         dtheta = [clean_dtheta(x) for x in dtheta]
+
+    if squelch:
+        amplitudes = np.abs(samples)
+        average_amplitude = np.average(amplitudes)
+        # Only keep values above the amplitude requirement
+        dtheta = (amplitudes > average_amplitude / 5) * dtheta
 
     return dtheta
 
@@ -143,3 +154,21 @@ def downsample(samples: np.array, fsamples: int, ftarget: int, averaging: bool =
             result.append(np.average(samples[x * dsfactor : (x + 1) * dsfactor]))
         return result
 
+def complex_samples_to_spectrogram(samples):
+    """
+    Given an array of complex samples, graph a spectrogram for it. Call plt.show() to display
+
+    TODO: add custom axis scaling and labeling
+    """
+    fft_width = 2048
+    num_rows = math.floor(len(samples) / fft_width)
+
+    spectrogram = np.zeros((num_rows, fft_width))
+
+    for i in range(num_rows):
+        spectrogram[i,:] = 10*np.log10(np.abs(np.fft.fftshift(np.fft.fft(samples[fft_width * i : fft_width * (i + 1)]))) ** 2)
+
+    fig, ax = plt.subplots()
+    ax.imshow(spectrogram, aspect='auto')
+    ax.set_xlabel("Frequency [MHz]")
+    ax.set_ylabel("Time [s]")
