@@ -32,14 +32,14 @@ fc = 94.9e6 # KUOW Seattle
 
 sdr.gain = 10
 sdr.sample_rate = fsps
-sdr.center_freq = fc - 3e5
+sdr.center_freq = fc
 
 samples = sdr.read_samples(N)
 
-# This cell creates a spectrogram of the received data over time
-
-# How many samples to use for each fft. Prefer powers of 2 for speed in fft
 tenutils.complex_samples_to_spectrogram(samples)
+plt.title("Spectrogram of samples")
+tenutils.complex_samples_to_fourier(samples, fc, fsps)
+plt.title("Absolute value of Fourier Transform of samples")
 plt.show()
 
 # We now write to wav file.

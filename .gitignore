@@ -5,3 +5,7 @@ __pycache__
 recordings
 
 output
+
+# As much as I'd love to include video documentation it's far too large for uploading
+# to a repo
+*.mkv

@@ -60,3 +60,23 @@ I should plan to add a "recording" class/struct
 which has the necessary stuff for finding the
 file and doing appropriate playback (instead
 of multiple hardcoded constants).
+
+## Tuesday 5/24
+
+Trying to understand the weirdness of SDRSharp's baseband recording.
+
+Screenshots saved. Basically quality is HORRIBLE unless you use 32-bit float. But my thing shows 16-bit is more than enough for good fidelity. So what's going on? It seems like something is wrong with the gain?
+
+Ahhh yes, seems like it had to do with Tuner AGC being set.
+
+Beginning to work on recordings.py interface
+
+# Wednesday 5/25
+
+Wrap up recordings.py (I think this is good?)
+
+# Thursday 5/26
+
+Work on WAV file writer
+
+Work on FFT graphing function

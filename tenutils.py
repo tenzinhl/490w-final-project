@@ -4,11 +4,11 @@ tenutils - Tenzin's utility functions for his CSE 490W project
 Intended to be useful even as a general purpose simple DSP library
 """
 
-from cv2 import normalize
 import numpy as np
 from math import fmod
 import math
 import matplotlib.pyplot as plt
+import wave
 
 # TODO: many of the type hints which ask for np.array's long-term should be switched
 # to use np.typing.ArrayLike. Given that I currently don't enable type checking and
@@ -158,7 +158,7 @@ def complex_samples_to_spectrogram(samples):
     """
     Given an array of complex samples, graph a spectrogram for it. Call plt.show() to display
 
-    TODO: add custom axis scaling and labeling
+    TODO: add custom axis scaling and labeling, currently the axis values are kind of meaningless
     """
     fft_width = 2048
     num_rows = math.floor(len(samples) / fft_width)
@@ -166,9 +166,96 @@ def complex_samples_to_spectrogram(samples):
     spectrogram = np.zeros((num_rows, fft_width))
 
     for i in range(num_rows):
-        spectrogram[i,:] = 10*np.log10(np.abs(np.fft.fftshift(np.fft.fft(samples[fft_width * i : fft_width * (i + 1)]))) ** 2)
+        spectrogram[i,:] = 10 * np.log10(
+            np.abs(np.fft.fftshift(np.fft.fft(samples[fft_width * i : fft_width * (i + 1)]))) ** 2)
 
     fig, ax = plt.subplots()
     ax.imshow(spectrogram, aspect='auto')
     ax.set_xlabel("Frequency [MHz]")
     ax.set_ylabel("Time [s]")
+    fig.suptitle("Spectrogram")
+
+def complex_samples_to_fourier(samples, fc=0, fs=0):
+    """
+    Graph the absolute value of the Fourier Transform of a list of complex samples
+
+    Creates a plot using matplotlib pyplot methods, so call plt.show() to show. (As
+    such plot can also be manipulated)
+
+    TODO: long-term figuring out a more object oriented way to return things that are
+    more flexible for caller (e.g.: if they want to graph in subplot) would be ideal
+
+    :param samples: the samples to graph
+    :param fc: the center frequency of the graph. Defaults to 0
+    :param fs: the sampling frequency (for determining graph x-axis labels), defaults
+        to the number of samples
+    """
+    num_samples = len(samples)
+    if fs <= 0:
+        fs = len(samples)
+    
+    nyquist = fs / 2
+
+    spectrum = np.fft.fftshift(np.fft.fft(samples))
+    freqs = np.linspace(fc - nyquist, fc + nyquist, num_samples)
+    plt.figure()
+    plt.xlabel("Frequency (Hz)")
+    plt.plot(freqs, np.abs(spectrum))
+    plt.title("Absolute value of Fourier transform")
+
+
+def read_wav_to_np(filename, n):
+    """
+    Return a 2D np array of the contents of the wav file. Each row represents the channels
+    in the WAV file in-order. 
+    
+    Samples are assumed to be signed and currently this method only works with 16 bit wav 
+    files but that'd be easy to expand.
+
+    :param filename: the file to read
+    :param n: the number of samples to read. Will read as many as is possible if n is > 
+        the number of samples in the file
+    :return: a numpy array with the samples. Each row represents the channels in the WAV
+        file in-order. 
+    """
+    wav_in = wave.open(filename, 'rb')
+
+    if wav_in.getsampwidth() == 2:
+        read_dtype = np.int16
+    else:
+        # We aren't ready for it. Can expand to handle more data types in the future
+        raise ValueError("Unexpected sample width in WAV file")
+
+    num_samples_to_read = min(wav_in.getnframes(), n)
+    num_channels = wav_in.getnchannels()
+
+    bytes = wav_in.readframes(num_samples_to_read)
+
+    interleaved = np.frombuffer(bytes, dtype=read_dtype)
+
+    result = np.empty((2, num_samples_to_read))
+
+    for i in range(num_channels):
+        result[i:,] = interleaved[i::num_channels]
+
+    return result
+
+
+def read_wav_to_complex_samples(filename, n):
+    """
+    Reads a WAV file storing complex samples into an numpy array. The WAV file
+    must have exactly two channels, and the first and second channels must contain
+    the in-phase (real) and quadrature (imaginary) samples respectively.
+
+    Currently this function requires 16-bit signed samples.
+
+    :param filename: the file to open (path is relative to where this is run)
+    :param n: the number of samples to read. Will read at most this many samples if there
+        are more samples in the file than n, otherwise reads all samples in the file
+    """
+    channel_samples = read_wav_to_np(filename, n)
+
+    if not len(channel_samples.shape) == 2 or not channel_samples.shape[0] == 2:
+        raise ValueError("WAV file in unexpected format. Must contain 2 exactly two channels")
+
+    return channel_samples[0] + channel_samples[1] * 1j

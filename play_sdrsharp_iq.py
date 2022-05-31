@@ -7,22 +7,26 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sounddevice as sd
 from tenutils import *
+import recordings
 
-KUOW_IQ_RECORDING = "recordings/kuow/SDRSharp_20220513_042737Z_95140881Hz_IQ.wav"
-KUOW_IQ_RECORDING_FC = 95140881
-KUOW_IQ_RECORDING_OFFSET = -240e3
+# Select settings here: ----------------
 
-MY_TEST_WAV = "output/test.wav"
-MY_TEST_WAV_FC = 0
-MY_TEST_WAV_OFFSET = 300e3
+# Choose a recording to play here
+recording = recordings.KUOW_BAD_IQ_RECORDING
 
-wavinput = wave.open(MY_TEST_WAV, mode='rb')
-
+# Choose the max number of frames to use
 MAX_FRAMES_TO_READ = 1_000_000
+
+# End of settings ----------------------
+
+filename = recording.filepath
+fc = recording.fc
+foffset = recording.foffset
+
+wavinput = wave.open(filename, mode='rb')
 
 num_samples = min(wavinput.getnframes(), MAX_FRAMES_TO_READ)
 fs = wavinput.getframerate()
-fc = MY_TEST_WAV_FC # Hard coded for now, can be obtained from file name
 nyquist = fs / 2
 sampwidth = wavinput.getsampwidth()
 # I'm guessing there will be two channels which are going to be in-phase and quadrature?
@@ -61,20 +65,19 @@ GRAPH_WIDTH = 500
 
 # First step: bandpass the signal
 
+# Cutoff freq of filter
+fcutoff = recording.fcutoff
+
 # Plot the fft of the signal with the bandpass filter to use
 spectrum = np.fft.fftshift(np.fft.fft(compsamples))
 freqs = np.linspace(fc - nyquist, fc + nyquist, num_samples)
-# Cutoff freq of filter
-fcutoff = 100_000
-# Hard coded. Need to shift depending on your desired frequency from the center
-foffset = MY_TEST_WAV_OFFSET
 mask = bandpassmask(num_samples, fs, fcutoff, foffset=foffset)
 assert len(mask) == num_samples
 
 # Scale filter when graphing so it's more clear
 spectrum_max = np.max(np.abs(spectrum))
 
-# Graph 
+# Graph
 plt.figure()
 plt.title("Baseband spectrum before bandpass mask")
 plt.plot(freqs/1e6, np.abs(spectrum))
@@ -116,6 +119,7 @@ sd.play(audio, faudiosps)
 # Require user input before exiting
 print("Press enter to exit...")
 _ = input()
+
 
 def graphsamples():
     """
