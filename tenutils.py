@@ -138,10 +138,10 @@ def downsample(samples: np.array, fsamples: int, ftarget: int, averaging: bool =
     :averaging: whether or not to average windows of the samples when downsampling
     """
     # TODO: currently this method suffers from rounding errors. By isntead doing the rounding
-    # at each step instead of once at the beginning on the downsampling factor, we could 
+    # at each step instead of once at the beginning on the downsampling factor, we could
     # converge towards the ideal resulting sampling frequency on long (not even necessarily)
     # that long) sample windows.
-    
+
     # Down-sampling factor
     dsfactor = round(fsamples / ftarget)
 
@@ -151,8 +151,9 @@ def downsample(samples: np.array, fsamples: int, ftarget: int, averaging: bool =
     else:
         result = []
         for x in range(len(samples) // dsfactor):
-            result.append(np.average(samples[x * dsfactor : (x + 1) * dsfactor]))
+            result.append(np.average(samples[x * dsfactor: (x + 1) * dsfactor]))
         return result
+
 
 def complex_samples_to_spectrogram(samples):
     """
@@ -166,14 +167,15 @@ def complex_samples_to_spectrogram(samples):
     spectrogram = np.zeros((num_rows, fft_width))
 
     for i in range(num_rows):
-        spectrogram[i,:] = 10 * np.log10(
-            np.abs(np.fft.fftshift(np.fft.fft(samples[fft_width * i : fft_width * (i + 1)]))) ** 2)
+        spectrogram[i, :] = 10 * np.log10(
+            np.abs(np.fft.fftshift(np.fft.fft(samples[fft_width * i: fft_width * (i + 1)]))) ** 2)
 
     fig, ax = plt.subplots()
     ax.imshow(spectrogram, aspect='auto')
     ax.set_xlabel("Frequency [MHz]")
     ax.set_ylabel("Time [s]")
     fig.suptitle("Spectrogram")
+
 
 def complex_samples_to_fourier(samples, fc=0, fs=0):
     """
@@ -193,7 +195,7 @@ def complex_samples_to_fourier(samples, fc=0, fs=0):
     num_samples = len(samples)
     if fs <= 0:
         fs = len(samples)
-    
+
     nyquist = fs / 2
 
     spectrum = np.fft.fftshift(np.fft.fft(samples))
@@ -208,7 +210,7 @@ def read_wav_to_np(filename, n):
     """
     Return a 2D np array of the contents of the wav file. Each row represents the channels
     in the WAV file in-order. 
-    
+
     Samples are assumed to be signed and currently this method only works with 16 bit wav 
     files but that'd be easy to expand.
 
@@ -236,7 +238,7 @@ def read_wav_to_np(filename, n):
     result = np.empty((2, num_samples_to_read))
 
     for i in range(num_channels):
-        result[i:,] = interleaved[i::num_channels]
+        result[i:, ] = interleaved[i::num_channels]
 
     return result
 
@@ -259,3 +261,11 @@ def read_wav_to_complex_samples(filename, n):
         raise ValueError("WAV file in unexpected format. Must contain 2 exactly two channels")
 
     return channel_samples[0] + channel_samples[1] * 1j
+
+
+def correct_dc(samples):
+    """
+    Takes an array of complex samples and returns a corrected version of the samples 
+    such that the DC offset is 0
+    """
+    return samples - np.average(samples)

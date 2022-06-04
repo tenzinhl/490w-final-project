@@ -80,3 +80,9 @@ Wrap up recordings.py (I think this is good?)
 Work on WAV file writer
 
 Work on FFT graphing function
+
+# Missing some days here, but yesterday 6/2 I gave presentation:
+
+TODO:
+- Share videos for CSE 490W presentation
+- Put details on angle normalization in final project report

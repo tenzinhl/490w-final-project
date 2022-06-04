@@ -50,6 +50,9 @@ qsamples = combined_samples[1::2]
 # Form the array of complex samples
 compsamples = isamples + 1j * qsamples
 
+# Remove the dc component of the samples
+compsamples = correct_dc(compsamples)
+
 # At this point there should be an equal number of i and q samples
 assert len(isamples) == len(qsamples)
 
@@ -88,7 +91,7 @@ plt.show(block=False)
 filtered_spectrum = spectrum * mask
 plt.figure()
 plt.title("Filtered spectrum")
-plt.plot(freqs/1e6, filtered_spectrum)
+plt.plot(freqs/1e6, np.abs(filtered_spectrum))
 plt.show(block=False)
 
 filtered_signal = np.fft.ifft(np.fft.fftshift(filtered_spectrum))
